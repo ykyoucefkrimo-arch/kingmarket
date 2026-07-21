@@ -5,19 +5,20 @@
 
 /* ── Variables ──────────────────────────────────────────────── */
 :root {
-    --couleur-fond: #FAFAF8;
-    --couleur-fond-alt: #F1F1EE;
-    --couleur-encre: #10121A;       /* noir profond, thème "e-ink" */
-    --couleur-encre-clair: #2A2D3A;
-    --couleur-accent: #4A3AFF;      /* indigo électrique */
-    --couleur-accent-clair: #6E62FF;
-    --couleur-accent-sombre: #372BCC;
+    --couleur-fond: #FFFFFF;
+    --couleur-fond-alt: #FBF3E8;     /* beige/crème chaud (charte OseilleTV) */
+    --couleur-creme: #FDECD8;        /* fond crème des icônes/cartes */
+    --couleur-encre: #0F0F10;       /* noir profond, header/texte */
+    --couleur-encre-clair: #2A2A2C;
+    --couleur-accent: #F5821F;      /* orange vif (charte OseilleTV) */
+    --couleur-accent-clair: #FFA655;
+    --couleur-accent-sombre: #D9690A;
     --couleur-alerte: #E4483C;
     --couleur-succes: #1E9E6B;
     --couleur-attente: #E0A526;
-    --couleur-bordure: #E4E4E0;
-    --couleur-texte: #10121A;
-    --couleur-texte-att: #5B5D6B;
+    --couleur-bordure: #F0E2CC;
+    --couleur-texte: #0F0F10;
+    --couleur-texte-att: #6B6560;
     --couleur-blanc: #FFFFFF;
     --ombre-carte: 0 4px 24px rgba(16, 18, 26, 0.06);
     --ombre-carte-hover: 0 8px 32px rgba(16, 18, 26, 0.12);
@@ -93,7 +94,7 @@ input, select, textarea { font-family: inherit; font-size: 1rem; }
     align-items: center;
     justify-content: center;
     text-align: center;
-    background: linear-gradient(135deg, #EDEBFF, #F6F5FF);
+    background: linear-gradient(135deg, #FDECD8, #FFF8F0);
     border: 2px dashed var(--couleur-accent-clair);
     border-radius: var(--rayon);
     color: var(--couleur-accent-sombre);
@@ -169,7 +170,7 @@ input, select, textarea { font-family: inherit; font-size: 1rem; }
 /* ── Hero ──────────────────────────────────────────────────── */
 .hero {
     padding: 72px 0 88px;
-    background: radial-gradient(circle at 80% 10%, #EDEBFF 0%, var(--couleur-fond) 55%);
+    background: radial-gradient(circle at 80% 10%, #FDECD8 0%, var(--couleur-fond) 55%);
 }
 
 .hero-grid {
@@ -276,7 +277,7 @@ input, select, textarea { font-family: inherit; font-size: 1rem; }
     font-size: 1.15rem;
     font-weight: 600;
 }
-.solution-banner span { color: #B9AFFF; }
+.solution-banner span { color: #FFC98A; }
 
 /* ── Fonctionnalités (grille icônes) ───────────────────────── */
 .features-grid {
@@ -298,7 +299,7 @@ input, select, textarea { font-family: inherit; font-size: 1rem; }
     width: 52px;
     height: 52px;
     border-radius: 14px;
-    background: #EDEBFF;
+    background: var(--couleur-creme);
     color: var(--couleur-accent);
     display: flex;
     align-items: center;
@@ -440,7 +441,7 @@ input, select, textarea { font-family: inherit; font-size: 1rem; }
 .offer-price-unit { color: #B9BBCC; font-size: 0.95rem; }
 
 .offer-savings {
-    color: #B9AFFF;
+    color: #FFC98A;
     font-weight: 700;
     margin-bottom: 30px;
 }
@@ -582,7 +583,7 @@ input, select, textarea { font-family: inherit; font-size: 1rem; }
 }
 .qty-option.active {
     border-color: var(--couleur-accent);
-    background: #F3F1FF;
+    background: #FDECD8;
 }
 
 /* Honeypot (champ anti-spam invisible) */
