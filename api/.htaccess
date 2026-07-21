@@ -1,0 +1,22 @@
+# Bloque l'accès direct à ces fichiers via navigateur (ils ne doivent être
+# utilisés que via `require` depuis un autre script PHP du même dossier).
+<FilesMatch "^(config\.php|helpers\.php|db_schema\.sql)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Empêche l'exécution/lecture de tout fichier .sql présent dans ce dossier.
+<FilesMatch "\.sql$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>

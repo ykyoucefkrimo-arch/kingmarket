@@ -1,0 +1,5 @@
+# Désactive l'affichage du contenu des dossiers sans index (sécurité de base).
+Options -Indexes
+
+# Force l'encodage UTF-8 par défaut (accents corrects partout).
+AddDefaultCharset UTF-8
