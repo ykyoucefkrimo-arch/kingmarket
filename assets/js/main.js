@@ -89,11 +89,27 @@
         selectWilaya.addEventListener('change', function () {
             peuplerCommunes(selectWilaya.value);
             validerChamp(selectCommune);
+            majRecapitulatif();
         });
     }
 
     /* ============================================================
-       2. Sélecteur de quantité (1 / 2 / 3, remise visible)
+       2. Frais de livraison (peuplés depuis api/frais-livraison.php)
+       ============================================================ */
+    let fraisLivraisonParWilaya = {}; // { "NomLatinWilaya": prixEnDZD }
+
+    fetch('api/frais-livraison.php')
+        .then(function (reponse) { return reponse.json(); })
+        .then(function (data) {
+            fraisLivraisonParWilaya = data || {};
+            majRecapitulatif();
+        })
+        .catch(function (err) {
+            console.error('Impossible de charger les frais de livraison', err);
+        });
+
+    /* ============================================================
+       3. Sélecteur de quantité (1 / 2 / 3, remise visible) + récapitulatif
        ============================================================ */
     const qtyOptions = document.querySelectorAll('.qty-option');
     qtyOptions.forEach(function (option) {
@@ -106,18 +122,36 @@
     });
 
     const PRIX_UNITAIRE = 8900; // DZD — à ajuster selon votre offre réelle
+    function formaterPrix(montant) {
+        return montant.toLocaleString('fr-FR') + ' دج';
+    }
+
     function majRecapitulatif() {
         const qteInput = document.querySelector('input[name="quantite"]:checked');
         const qte = qteInput ? parseInt(qteInput.value, 10) : 1;
-        const totalEl = document.getElementById('recap-total');
+
+        const produitEl    = document.getElementById('recap-produit');
+        const livraisonEl  = document.getElementById('recap-livraison');
+        const totalEl      = document.getElementById('recap-total');
         if (!totalEl) return;
 
         let remise = 0;
         if (qte === 2) remise = 0.10;
         if (qte === 3) remise = 0.18;
 
-        const total = Math.round(PRIX_UNITAIRE * qte * (1 - remise));
-        totalEl.textContent = total.toLocaleString('fr-FR') + ' دج';
+        const sousTotal = Math.round(PRIX_UNITAIRE * qte * (1 - remise));
+        if (produitEl) produitEl.textContent = formaterPrix(sousTotal);
+
+        const wilayaChoisie = selectWilaya ? selectWilaya.value : '';
+        let frais = 0;
+        if (wilayaChoisie && Object.prototype.hasOwnProperty.call(fraisLivraisonParWilaya, wilayaChoisie)) {
+            frais = fraisLivraisonParWilaya[wilayaChoisie];
+            if (livraisonEl) livraisonEl.textContent = frais > 0 ? formaterPrix(frais) : 'مجانية';
+        } else if (livraisonEl) {
+            livraisonEl.textContent = wilayaChoisie ? 'مجانية' : 'اختر ولايتك';
+        }
+
+        totalEl.textContent = formaterPrix(sousTotal + frais);
     }
     majRecapitulatif();
 

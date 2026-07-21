@@ -99,6 +99,20 @@ function ip_a_depasse_limite(PDO $pdo, string $ip, int $secondes = 60): bool
     return (int) $stmt->fetchColumn() > 0;
 }
 
+/**
+ * Récupère le prix de livraison (DZD) configuré pour une wilaya donnée.
+ * Retourne 0 si la wilaya n'a pas (encore) de tarif défini par l'admin —
+ * ne jamais faire confiance à un montant envoyé par le client.
+ */
+function frais_livraison_pour(PDO $pdo, string $wilaya): int
+{
+    $stmt = $pdo->prepare('SELECT prix FROM frais_livraison WHERE wilaya = :wilaya LIMIT 1');
+    $stmt->execute([':wilaya' => $wilaya]);
+    $prix = $stmt->fetchColumn();
+
+    return $prix === false ? 0 : (int) $prix;
+}
+
 /** Récupère l'IP réelle du client (en tenant compte d'un éventuel proxy). */
 function ip_client(): string
 {

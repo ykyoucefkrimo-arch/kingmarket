@@ -83,21 +83,26 @@ if (!empty($erreurs)) {
     repondre(false, implode(' ', $erreurs), 422);
 }
 
+// Le prix de livraison est toujours recalculé côté serveur depuis la table
+// frais_livraison (jamais confiance à un montant envoyé par le client).
+$fraisLivraison = frais_livraison_pour($pdo, $wilaya);
+
 // ── Insertion en base (requête préparée) ────────────────────────────────
 try {
     $stmt = $pdo->prepare(
-        'INSERT INTO commandes (nom, prenom, telephone, wilaya, commune, quantite, statut, date_creation, ip_client)
-         VALUES (:nom, :prenom, :telephone, :wilaya, :commune, :quantite, :statut, NOW(), :ip)'
+        'INSERT INTO commandes (nom, prenom, telephone, wilaya, commune, quantite, frais_livraison, statut, date_creation, ip_client)
+         VALUES (:nom, :prenom, :telephone, :wilaya, :commune, :quantite, :frais_livraison, :statut, NOW(), :ip)'
     );
     $stmt->execute([
-        ':nom'       => $nom,
-        ':prenom'    => $prenom,
-        ':telephone' => $telephone,
-        ':wilaya'    => $wilaya,
-        ':commune'   => $commune,
-        ':quantite'  => $quantite,
-        ':statut'    => 'Nouvelle',
-        ':ip'        => $ip,
+        ':nom'             => $nom,
+        ':prenom'          => $prenom,
+        ':telephone'       => $telephone,
+        ':wilaya'          => $wilaya,
+        ':commune'         => $commune,
+        ':quantite'        => $quantite,
+        ':frais_livraison' => $fraisLivraison,
+        ':statut'          => 'Nouvelle',
+        ':ip'              => $ip,
     ]);
 } catch (PDOException $e) {
     error_log('Erreur insertion commande : ' . $e->getMessage());

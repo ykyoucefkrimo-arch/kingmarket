@@ -82,6 +82,7 @@ function badgeStatutClasse(string $statut): string
             <h1>Smart Ink Case <span>— Admin</span></h1>
             <div class="admin-header-right">
                 <span>Bonjour, <strong><?= htmlspecialchars($_SESSION['admin_username']) ?></strong></span>
+                <a href="livraison.php" class="btn-outline">Frais de livraison</a>
                 <a href="logout.php" class="btn-outline">Déconnexion</a>
             </div>
         </div>

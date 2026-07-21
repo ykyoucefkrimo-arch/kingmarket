@@ -7,22 +7,33 @@ SET NAMES utf8mb4;
 
 -- ── Table des commandes ─────────────────────────────────────
 CREATE TABLE IF NOT EXISTS `commandes` (
-    `id`            INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `nom`           VARCHAR(100)  NOT NULL,
-    `prenom`        VARCHAR(100)  NOT NULL,
-    `telephone`     VARCHAR(20)   NOT NULL,
-    `wilaya`        VARCHAR(100)  NOT NULL,
-    `commune`       VARCHAR(150)  NOT NULL,
-    `quantite`      TINYINT UNSIGNED NOT NULL DEFAULT 1,
-    `statut`        ENUM('Nouvelle','Confirmée','En livraison','Livrée','Annulée')
-                    NOT NULL DEFAULT 'Nouvelle',
-    `date_creation` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `ip_client`     VARCHAR(45)   NOT NULL,
+    `id`              INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `nom`             VARCHAR(100)  NOT NULL,
+    `prenom`          VARCHAR(100)  NOT NULL,
+    `telephone`       VARCHAR(20)   NOT NULL,
+    `wilaya`          VARCHAR(100)  NOT NULL,
+    `commune`         VARCHAR(150)  NOT NULL,
+    `quantite`        TINYINT UNSIGNED NOT NULL DEFAULT 1,
+    `frais_livraison` INT UNSIGNED NOT NULL DEFAULT 0, -- snapshot en DZD au moment de la commande
+    `statut`          ENUM('Nouvelle','Confirmée','En livraison','Livrée','Annulée')
+                      NOT NULL DEFAULT 'Nouvelle',
+    `date_creation`   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `ip_client`       VARCHAR(45)   NOT NULL,
     PRIMARY KEY (`id`),
     INDEX `idx_statut` (`statut`),
     INDEX `idx_wilaya` (`wilaya`),
     INDEX `idx_date_creation` (`date_creation`),
     INDEX `idx_ip_client` (`ip_client`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ── Table des frais de livraison par wilaya ──────────────────
+-- Prix en DZD modifiable depuis admin/livraison.php. Une wilaya absente de
+-- cette table est consideree a 0 DA de frais (voir api/helpers.php).
+CREATE TABLE IF NOT EXISTS `frais_livraison` (
+    `wilaya`            VARCHAR(100) NOT NULL,
+    `prix`              INT UNSIGNED NOT NULL DEFAULT 0,
+    `date_modification` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`wilaya`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ── Table des comptes admin ──────────────────────────────────
