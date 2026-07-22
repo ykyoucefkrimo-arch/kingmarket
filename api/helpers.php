@@ -99,14 +99,23 @@ function ip_a_depasse_limite(PDO $pdo, string $ip, int $secondes = 60): bool
     return (int) $stmt->fetchColumn() > 0;
 }
 
-/**
- * Récupère le prix de livraison (DZD) configuré pour une wilaya donnée.
- * Retourne 0 si la wilaya n'a pas (encore) de tarif défini par l'admin —
- * ne jamais faire confiance à un montant envoyé par le client.
- */
-function frais_livraison_pour(PDO $pdo, string $wilaya): int
+/** Vérifie qu'un type de livraison est l'une des deux valeurs autorisées. */
+function type_livraison_valide(string $type): bool
 {
-    $stmt = $pdo->prepare('SELECT prix FROM frais_livraison WHERE wilaya = :wilaya LIMIT 1');
+    return in_array($type, ['domicile', 'point_relais'], true);
+}
+
+/**
+ * Récupère le prix de livraison (DZD) configuré pour une wilaya et un type
+ * de livraison (domicile ou point relais) donnés. Retourne 0 si la wilaya
+ * n'a pas (encore) de tarif défini par l'admin — ne jamais faire confiance
+ * à un montant envoyé par le client.
+ */
+function frais_livraison_pour(PDO $pdo, string $wilaya, string $type = 'domicile'): int
+{
+    $colonne = $type === 'point_relais' ? 'prix_point_relais' : 'prix_domicile';
+
+    $stmt = $pdo->prepare("SELECT `$colonne` FROM frais_livraison WHERE wilaya = :wilaya LIMIT 1");
     $stmt->execute([':wilaya' => $wilaya]);
     $prix = $stmt->fetchColumn();
 

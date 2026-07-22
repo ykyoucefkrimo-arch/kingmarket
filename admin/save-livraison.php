@@ -1,8 +1,9 @@
 <?php
 /**
- * save-livraison.php — Enregistre en une fois les frais de livraison de
- * toutes les wilayas soumises (admin/livraison.php). Upsert (INSERT ... ON
- * DUPLICATE KEY UPDATE) : la wilaya est la clé primaire de frais_livraison.
+ * save-livraison.php — Enregistre en une fois les frais de livraison
+ * (domicile + point relais) de toutes les wilayas soumises
+ * (admin/livraison.php). Upsert (INSERT ... ON DUPLICATE KEY UPDATE) : la
+ * wilaya est la clé primaire de frais_livraison.
  */
 
 require __DIR__ . '/auth.php';
@@ -17,8 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$prixSoumis = $_POST['prix'] ?? [];
-if (!is_array($prixSoumis) || empty($prixSoumis)) {
+$prixDomicileSoumis = $_POST['prix_domicile'] ?? [];
+$prixRelaisSoumis   = $_POST['prix_point_relais'] ?? [];
+
+if (!is_array($prixDomicileSoumis) || empty($prixDomicileSoumis)) {
     http_response_code(422);
     echo json_encode(['success' => false, 'message' => 'Aucune donnée reçue.']);
     exit;
@@ -28,23 +31,32 @@ if (!is_array($prixSoumis) || empty($prixSoumis)) {
 // de tableau arbitraire envoyée par le client).
 $wilayasValides = array_keys(charger_wilayas_communes());
 
+function entier_positif_ou_zero($valeur): int
+{
+    $entier = filter_var($valeur, FILTER_VALIDATE_INT);
+    return ($entier === false || $entier < 0) ? 0 : $entier;
+}
+
 try {
     $pdo->beginTransaction();
 
     $stmt = $pdo->prepare(
-        'INSERT INTO frais_livraison (wilaya, prix) VALUES (:wilaya, :prix)
-         ON DUPLICATE KEY UPDATE prix = VALUES(prix)'
+        'INSERT INTO frais_livraison (wilaya, prix_domicile, prix_point_relais)
+         VALUES (:wilaya, :prix_domicile, :prix_point_relais)
+         ON DUPLICATE KEY UPDATE
+            prix_domicile = VALUES(prix_domicile),
+            prix_point_relais = VALUES(prix_point_relais)'
     );
 
-    foreach ($prixSoumis as $wilaya => $prix) {
-        if (!in_array($wilaya, $wilayasValides, true)) {
+    foreach ($wilayasValides as $wilaya) {
+        if (!array_key_exists($wilaya, $prixDomicileSoumis)) {
             continue;
         }
-        $prixEntier = filter_var($prix, FILTER_VALIDATE_INT);
-        if ($prixEntier === false || $prixEntier < 0) {
-            $prixEntier = 0;
-        }
-        $stmt->execute([':wilaya' => $wilaya, ':prix' => $prixEntier]);
+        $stmt->execute([
+            ':wilaya'            => $wilaya,
+            ':prix_domicile'     => entier_positif_ou_zero($prixDomicileSoumis[$wilaya]),
+            ':prix_point_relais' => entier_positif_ou_zero($prixRelaisSoumis[$wilaya] ?? 0),
+        ]);
     }
 
     $pdo->commit();

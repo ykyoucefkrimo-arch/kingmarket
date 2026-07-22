@@ -79,19 +79,24 @@ if ($quantite === false || $quantite < 1 || $quantite > 3) {
     $erreurs[] = 'يجب أن تكون الكمية 1 أو 2 أو 3.';
 }
 
+$typeLivraison = trim($entree['type_livraison'] ?? 'domicile');
+if (!type_livraison_valide($typeLivraison)) {
+    $erreurs[] = 'نوع التوصيل غير صالح.';
+}
+
 if (!empty($erreurs)) {
     repondre(false, implode(' ', $erreurs), 422);
 }
 
 // Le prix de livraison est toujours recalculé côté serveur depuis la table
 // frais_livraison (jamais confiance à un montant envoyé par le client).
-$fraisLivraison = frais_livraison_pour($pdo, $wilaya);
+$fraisLivraison = frais_livraison_pour($pdo, $wilaya, $typeLivraison);
 
 // ── Insertion en base (requête préparée) ────────────────────────────────
 try {
     $stmt = $pdo->prepare(
-        'INSERT INTO commandes (nom, prenom, telephone, wilaya, commune, quantite, frais_livraison, statut, date_creation, ip_client)
-         VALUES (:nom, :prenom, :telephone, :wilaya, :commune, :quantite, :frais_livraison, :statut, NOW(), :ip)'
+        'INSERT INTO commandes (nom, prenom, telephone, wilaya, commune, quantite, frais_livraison, type_livraison, statut, date_creation, ip_client)
+         VALUES (:nom, :prenom, :telephone, :wilaya, :commune, :quantite, :frais_livraison, :type_livraison, :statut, NOW(), :ip)'
     );
     $stmt->execute([
         ':nom'             => $nom,
@@ -101,6 +106,7 @@ try {
         ':commune'         => $commune,
         ':quantite'        => $quantite,
         ':frais_livraison' => $fraisLivraison,
+        ':type_livraison'  => $typeLivraison,
         ':statut'          => 'Nouvelle',
         ':ip'              => $ip,
     ]);

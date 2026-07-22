@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS `commandes` (
     `commune`         VARCHAR(150)  NOT NULL,
     `quantite`        TINYINT UNSIGNED NOT NULL DEFAULT 1,
     `frais_livraison` INT UNSIGNED NOT NULL DEFAULT 0, -- snapshot en DZD au moment de la commande
+    `type_livraison`  ENUM('domicile','point_relais') NOT NULL DEFAULT 'domicile',
     `statut`          ENUM('Nouvelle','Confirmée','En livraison','Livrée','Annulée')
                       NOT NULL DEFAULT 'Nouvelle',
     `date_creation`   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -27,12 +28,14 @@ CREATE TABLE IF NOT EXISTS `commandes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ── Table des frais de livraison par wilaya ──────────────────
--- Prix en DZD modifiable depuis admin/livraison.php. Une wilaya absente de
--- cette table est consideree a 0 DA de frais (voir api/helpers.php).
+-- Deux tarifs par wilaya (domicile / point relais), modifiables depuis
+-- admin/livraison.php. Une wilaya absente de cette table est consideree a
+-- 0 DA de frais pour les deux types (voir api/helpers.php).
 CREATE TABLE IF NOT EXISTS `frais_livraison` (
-    `wilaya`            VARCHAR(100) NOT NULL,
-    `prix`              INT UNSIGNED NOT NULL DEFAULT 0,
-    `date_modification` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `wilaya`             VARCHAR(100) NOT NULL,
+    `prix_domicile`      INT UNSIGNED NOT NULL DEFAULT 0,
+    `prix_point_relais`  INT UNSIGNED NOT NULL DEFAULT 0,
+    `date_modification`  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`wilaya`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

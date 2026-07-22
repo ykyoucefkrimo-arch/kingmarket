@@ -96,7 +96,7 @@
     /* ============================================================
        2. Frais de livraison (peuplés depuis api/frais-livraison.php)
        ============================================================ */
-    let fraisLivraisonParWilaya = {}; // { "NomLatinWilaya": prixEnDZD }
+    let fraisLivraisonParWilaya = {}; // { "NomLatinWilaya": { domicile: prix, point_relais: prix } }
 
     fetch('api/frais-livraison.php')
         .then(function (reponse) { return reponse.json(); })
@@ -111,12 +111,20 @@
     /* ============================================================
        3. Sélecteur de quantité (1 / 2 / 3, remise visible) + récapitulatif
        ============================================================ */
+    // Chaque groupe d'options (.qty-option) ne doit désactiver que les autres
+    // options DU MÊME groupe (name du input radio) : la quantité et le type
+    // de livraison partagent la même classe visuelle mais sont deux groupes
+    // indépendants.
     const qtyOptions = document.querySelectorAll('.qty-option');
     qtyOptions.forEach(function (option) {
         option.addEventListener('click', function () {
-            qtyOptions.forEach(function (o) { o.classList.remove('active'); });
+            const input = option.querySelector('input');
+            const memeGroupe = document.querySelectorAll('.qty-option input[name="' + input.name + '"]');
+            memeGroupe.forEach(function (autreInput) {
+                autreInput.closest('.qty-option').classList.remove('active');
+            });
             option.classList.add('active');
-            option.querySelector('input').checked = true;
+            input.checked = true;
             majRecapitulatif();
         });
     });
@@ -143,9 +151,12 @@
         if (produitEl) produitEl.textContent = formaterPrix(sousTotal);
 
         const wilayaChoisie = selectWilaya ? selectWilaya.value : '';
+        const typeInput = document.querySelector('input[name="type_livraison"]:checked');
+        const typeLivraison = typeInput ? typeInput.value : 'domicile';
+
         let frais = 0;
         if (wilayaChoisie && Object.prototype.hasOwnProperty.call(fraisLivraisonParWilaya, wilayaChoisie)) {
-            frais = fraisLivraisonParWilaya[wilayaChoisie];
+            frais = fraisLivraisonParWilaya[wilayaChoisie][typeLivraison] || 0;
             if (livraisonEl) livraisonEl.textContent = frais > 0 ? formaterPrix(frais) : 'مجانية';
         } else if (livraisonEl) {
             livraisonEl.textContent = wilayaChoisie ? 'مجانية' : 'اختر ولايتك';
@@ -265,6 +276,7 @@
         }
 
         const qteInput = form.querySelector('input[name="quantite"]:checked');
+        const typeLivraisonInput = form.querySelector('input[name="type_livraison"]:checked');
         const { nom, prenom } = separerNomPrenom(champNomComplet.value);
 
         const donnees = {
@@ -274,6 +286,7 @@
             wilaya: selectWilaya.value,
             commune: selectCommune.value,
             quantite: qteInput ? qteInput.value : '1',
+            type_livraison: typeLivraisonInput ? typeLivraisonInput.value : 'domicile',
             site_web: form.querySelector('input[name="site_web"]').value, // honeypot
         };
 

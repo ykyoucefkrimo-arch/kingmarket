@@ -1,8 +1,9 @@
 <?php
 /**
  * livraison.php — Gestion des frais de livraison par wilaya.
- * Liste toutes les wilayas (assets/js/wilayas.json) avec un champ prix
- * chacune ; enregistrement en un seul clic (admin/save-livraison.php).
+ * Liste toutes les wilayas (assets/js/wilayas.json) avec deux champs prix
+ * chacune (domicile / point relais) ; enregistrement en un seul clic
+ * (admin/save-livraison.php).
  */
 
 require __DIR__ . '/auth.php';
@@ -13,10 +14,13 @@ $data = json_decode(file_get_contents($cheminWilayas), true);
 $wilayas = $data['wilayas'] ?? [];
 usort($wilayas, fn ($a, $b) => $a['wilaya_id'] <=> $b['wilaya_id']);
 
-$stmt = $pdo->query('SELECT wilaya, prix FROM frais_livraison');
+$stmt = $pdo->query('SELECT wilaya, prix_domicile, prix_point_relais FROM frais_livraison');
 $prixExistants = [];
 foreach ($stmt->fetchAll() as $ligne) {
-    $prixExistants[$ligne['wilaya']] = (int) $ligne['prix'];
+    $prixExistants[$ligne['wilaya']] = [
+        'domicile'     => (int) $ligne['prix_domicile'],
+        'point_relais' => (int) $ligne['prix_point_relais'],
+    ];
 }
 ?>
 <!DOCTYPE html>
@@ -42,9 +46,10 @@ foreach ($stmt->fetchAll() as $ligne) {
     <main class="admin-main">
         <h2 style="margin-bottom:6px;">Frais de livraison par wilaya</h2>
         <p style="color:var(--couleur-texte-att);margin-bottom:20px;">
-            Le prix saisi ici (en DZD) est automatiquement affiché au client sur le
-            formulaire de commande et ajouté au total, selon la wilaya choisie.
-            Une wilaya laissée à 0 n'ajoute aucun frais.
+            Les prix saisis ici (en DZD) sont automatiquement affichés au client sur le
+            formulaire de commande et ajoutés au total, selon la wilaya et le type de
+            livraison (domicile ou point relais) choisis. Une valeur laissée à 0 n'ajoute
+            aucun frais pour ce type.
         </p>
 
         <div id="livraison-message" class="admin-alert" style="display:none;"></div>
@@ -56,21 +61,36 @@ foreach ($stmt->fetchAll() as $ligne) {
                         <tr>
                             <th>#</th>
                             <th>Wilaya</th>
-                            <th>Frais de livraison (DZD)</th>
+                            <th>Livraison à domicile (DZD)</th>
+                            <th>Point relais (DZD)</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($wilayas as $w): ?>
+                        <?php foreach ($wilayas as $w):
+                            $nomLatin = $w['wilaya_name_latin'];
+                            $prixDomicile = $prixExistants[$nomLatin]['domicile'] ?? 0;
+                            $prixRelais   = $prixExistants[$nomLatin]['point_relais'] ?? 0;
+                        ?>
                             <tr>
                                 <td><?= (int) $w['wilaya_id'] ?></td>
-                                <td><?= htmlspecialchars($w['wilaya_name_latin']) ?></td>
+                                <td><?= htmlspecialchars($nomLatin) ?></td>
                                 <td>
                                     <input
                                         type="number"
                                         min="0"
                                         step="50"
-                                        name="prix[<?= htmlspecialchars($w['wilaya_name_latin']) ?>]"
-                                        value="<?= (int) ($prixExistants[$w['wilaya_name_latin']] ?? 0) ?>"
+                                        name="prix_domicile[<?= htmlspecialchars($nomLatin) ?>]"
+                                        value="<?= $prixDomicile ?>"
+                                        style="width:120px;padding:6px 10px;border:1.5px solid var(--couleur-bordure);border-radius:var(--rayon-sm);"
+                                    >
+                                </td>
+                                <td>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="50"
+                                        name="prix_point_relais[<?= htmlspecialchars($nomLatin) ?>]"
+                                        value="<?= $prixRelais ?>"
                                         style="width:120px;padding:6px 10px;border:1.5px solid var(--couleur-bordure);border-radius:var(--rayon-sm);"
                                     >
                                 </td>

@@ -1,10 +1,12 @@
 <?php
 /**
  * frais-livraison.php — Endpoint public en LECTURE SEULE : renvoie les
- * frais de livraison de toutes les wilayas déjà configurées, sous forme
- * { "Alger": 400, "Oran": 500, ... }. Aucune donnée sensible : accessible
- * sans authentification, utilisé par assets/js/main.js pour afficher le
- * total (produit + livraison) selon la wilaya choisie par le client.
+ * frais de livraison (domicile + point relais) de toutes les wilayas déjà
+ * configurées, sous forme
+ * { "Alger": { "domicile": 400, "point_relais": 200 }, ... }.
+ * Aucune donnée sensible : accessible sans authentification, utilisé par
+ * assets/js/main.js pour afficher le total selon la wilaya et le type de
+ * livraison choisis par le client.
  */
 
 header('Content-Type: application/json; charset=utf-8');
@@ -12,7 +14,7 @@ header('Content-Type: application/json; charset=utf-8');
 require __DIR__ . '/config.php';
 
 try {
-    $stmt = $pdo->query('SELECT wilaya, prix FROM frais_livraison');
+    $stmt = $pdo->query('SELECT wilaya, prix_domicile, prix_point_relais FROM frais_livraison');
     $lignes = $stmt->fetchAll();
 } catch (PDOException $e) {
     error_log('Erreur lecture frais_livraison : ' . $e->getMessage());
@@ -22,7 +24,10 @@ try {
 
 $resultat = [];
 foreach ($lignes as $ligne) {
-    $resultat[$ligne['wilaya']] = (int) $ligne['prix'];
+    $resultat[$ligne['wilaya']] = [
+        'domicile'     => (int) $ligne['prix_domicile'],
+        'point_relais' => (int) $ligne['prix_point_relais'],
+    ];
 }
 
 echo json_encode($resultat, JSON_UNESCAPED_UNICODE);
