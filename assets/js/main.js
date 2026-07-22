@@ -2,48 +2,27 @@
  * main.js — Logique de la landing page Smart Ink Case (version arabe).
  * Vanilla JS uniquement, aucune dépendance externe.
  *
- * Note : les valeurs envoyées au serveur (wilaya/commune) restent en
- * transcription latine (wilaya_name_latin / commune_name_latin) afin de
- * rester compatibles avec la validation PHP (api/helpers.php) et
- * l'affichage du panneau admin (resté en français). Seul le LIBELLÉ visible
- * dans les <option> est en arabe.
+ * Note : la valeur envoyée au serveur (wilaya) reste en transcription
+ * latine (wilaya_name_latin) afin de rester compatible avec la validation
+ * PHP (api/helpers.php) et l'affichage du panneau admin (resté en
+ * français). Seul le LIBELLÉ visible dans les <option> est en arabe.
  */
 (function () {
     'use strict';
 
     /* ============================================================
-       1. Wilayas / communes (peuplées depuis assets/js/wilayas.json)
+       1. Wilayas (peuplées depuis assets/js/wilayas.json)
        ============================================================ */
-    const selectWilaya  = document.getElementById('wilaya');
-    const selectCommune = document.getElementById('commune');
-
-    let communesParWilaya = {}; // { "NomLatinWilaya": [{ valeur, libelle }, ...] }
+    const selectWilaya = document.getElementById('wilaya');
 
     function chargerWilayas() {
         fetch('assets/js/wilayas.json')
             .then(function (reponse) { return reponse.json(); })
             .then(function (data) {
-                if (!data || !Array.isArray(data.wilayas) || !Array.isArray(data.communes)) {
+                if (!data || !Array.isArray(data.wilayas)) {
                     console.error('Format de wilayas.json inattendu.');
                     return;
                 }
-
-                // wilaya_id -> nom latin (valeur envoyée au serveur)
-                const nomsLatinsWilayas = {};
-                data.wilayas.forEach(function (w) {
-                    nomsLatinsWilayas[w.wilaya_id] = w.wilaya_name_latin;
-                });
-
-                // Regroupe les communes par wilaya (valeur = latin, libellé = arabe)
-                data.communes.forEach(function (c) {
-                    const nomLatinWilaya = nomsLatinsWilayas[c.wilaya_id];
-                    if (!nomLatinWilaya) return;
-                    if (!communesParWilaya[nomLatinWilaya]) communesParWilaya[nomLatinWilaya] = [];
-                    communesParWilaya[nomLatinWilaya].push({
-                        valeur: c.commune_name_latin,
-                        libelle: c.commune_name_arabic,
-                    });
-                });
 
                 // Peuple le <select> Wilaya (libellé arabe, trié par numéro de wilaya)
                 const wilayasTriees = data.wilayas
@@ -62,33 +41,9 @@
             });
     }
 
-    function peuplerCommunes(nomLatinWilaya) {
-        selectCommune.innerHTML = '<option value="">اختر البلدية</option>';
-
-        if (!nomLatinWilaya || !communesParWilaya[nomLatinWilaya]) {
-            selectCommune.disabled = true;
-            return;
-        }
-
-        communesParWilaya[nomLatinWilaya]
-            .slice()
-            .sort(function (a, b) { return a.libelle.localeCompare(b.libelle, 'ar'); })
-            .forEach(function (commune) {
-                const option = document.createElement('option');
-                option.value = commune.valeur;
-                option.textContent = commune.libelle;
-                selectCommune.appendChild(option);
-            });
-
-        selectCommune.disabled = false;
-    }
-
-    if (selectWilaya && selectCommune) {
-        selectCommune.disabled = true;
+    if (selectWilaya) {
         chargerWilayas();
         selectWilaya.addEventListener('change', function () {
-            peuplerCommunes(selectWilaya.value);
-            validerChamp(selectCommune);
             majRecapitulatif();
         });
     }
@@ -236,26 +191,20 @@
                     return false;
                 }
                 break;
-            case 'commune':
-                if (!champ.value) {
-                    afficherErreur(champ, 'الرجاء اختيار بلديتك.');
-                    return false;
-                }
-                break;
         }
 
         effacerErreur(champ);
         return true;
     }
 
-    [champNomComplet, champTelephone, selectWilaya, selectCommune].forEach(function (champ) {
+    [champNomComplet, champTelephone, selectWilaya].forEach(function (champ) {
         if (!champ) return;
         champ.addEventListener('blur', function () { validerChamp(champ); });
         champ.addEventListener('input', function () { effacerErreur(champ); });
     });
 
     function validerFormulaireComplet() {
-        const champs = [champNomComplet, champTelephone, selectWilaya, selectCommune];
+        const champs = [champNomComplet, champTelephone, selectWilaya];
         let valide = true;
         champs.forEach(function (champ) {
             if (!validerChamp(champ)) valide = false;
@@ -289,7 +238,6 @@
             prenom: prenom,
             telephone: nettoyerTelephone(champTelephone.value.trim()),
             wilaya: selectWilaya.value,
-            commune: selectCommune.value,
             quantite: qteInput ? qteInput.value : '1',
             type_livraison: typeLivraisonInput ? typeLivraisonInput.value : 'domicile',
             site_web: form.querySelector('input[name="site_web"]').value, // honeypot

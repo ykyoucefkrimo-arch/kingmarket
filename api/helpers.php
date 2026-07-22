@@ -71,16 +71,6 @@ function wilaya_valide(string $wilaya): bool
     return array_key_exists($wilaya, $liste);
 }
 
-/** Vérifie qu'une commune appartient bien à la wilaya donnée. */
-function commune_valide(string $wilaya, string $commune): bool
-{
-    $liste = charger_wilayas_communes();
-    if (!isset($liste[$wilaya])) {
-        return false;
-    }
-    return in_array($commune, $liste[$wilaya], true);
-}
-
 /**
  * Anti-spam simple par IP : renvoie true si l'IP a déjà passé commande
  * dans les $secondes dernières secondes (par défaut 60s = 1 commande/minute).

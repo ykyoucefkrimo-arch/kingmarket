@@ -69,11 +69,6 @@ if ($wilaya === '' || !wilaya_valide($wilaya)) {
     $erreurs[] = 'الولاية المختارة غير صالحة.';
 }
 
-$commune = trim($entree['commune'] ?? '');
-if ($commune === '' || ($wilaya !== '' && !commune_valide($wilaya, $commune))) {
-    $erreurs[] = 'البلدية المختارة غير صالحة.';
-}
-
 $quantite = filter_var($entree['quantite'] ?? 1, FILTER_VALIDATE_INT);
 if ($quantite === false || $quantite < 1 || $quantite > 3) {
     $erreurs[] = 'يجب أن تكون الكمية 1 أو 2 أو 3.';
@@ -93,6 +88,9 @@ if (!empty($erreurs)) {
 $fraisLivraison = frais_livraison_pour($pdo, $wilaya, $typeLivraison);
 
 // ── Insertion en base (requête préparée) ────────────────────────────────
+// Le client ne saisit plus de commune (seulement la wilaya) : la colonne
+// `commune` reste en base (historique + colonne NOT NULL) mais est
+// désormais toujours vide pour les nouvelles commandes.
 try {
     $stmt = $pdo->prepare(
         'INSERT INTO commandes (nom, prenom, telephone, wilaya, commune, quantite, frais_livraison, type_livraison, statut, date_creation, ip_client)
@@ -103,7 +101,7 @@ try {
         ':prenom'          => $prenom,
         ':telephone'       => $telephone,
         ':wilaya'          => $wilaya,
-        ':commune'         => $commune,
+        ':commune'         => '',
         ':quantite'        => $quantite,
         ':frais_livraison' => $fraisLivraison,
         ':type_livraison'  => $typeLivraison,
