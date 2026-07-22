@@ -43,7 +43,7 @@ if (!$aucunAdmin) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Créer le compte Admin — Smart Ink Case</title>
-<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/style.css?v=2">
 </head>
 <body class="admin-body">
     <div class="admin-login-wrap">
