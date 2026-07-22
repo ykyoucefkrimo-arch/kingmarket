@@ -156,7 +156,12 @@
 
         let frais = 0;
         if (wilayaChoisie && Object.prototype.hasOwnProperty.call(fraisLivraisonParWilaya, wilayaChoisie)) {
-            frais = fraisLivraisonParWilaya[wilayaChoisie][typeLivraison] || 0;
+            const valeur = fraisLivraisonParWilaya[wilayaChoisie];
+            // Garde-fou : si la valeur n'est pas au format attendu (ex. cache
+            // navigateur/CDN servant un ancien script avec un ancien format
+            // d'API), on retombe sur 0 plutôt que d'afficher "[object Object]".
+            const brut = valeur && typeof valeur === 'object' ? valeur[typeLivraison] : valeur;
+            frais = typeof brut === 'number' && !isNaN(brut) ? brut : 0;
             if (livraisonEl) livraisonEl.textContent = frais > 0 ? formaterPrix(frais) : 'مجانية';
         } else if (livraisonEl) {
             livraisonEl.textContent = wilayaChoisie ? 'مجانية' : 'اختر ولايتك';
