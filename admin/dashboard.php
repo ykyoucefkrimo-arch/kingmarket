@@ -194,6 +194,6 @@ function badgeStatutClasse(string $statut): string
 
     </main>
 
-    <script src="../assets/js/admin.js"></script>
+    <script src="../assets/js/admin.js?v=2"></script>
 </body>
 </html>

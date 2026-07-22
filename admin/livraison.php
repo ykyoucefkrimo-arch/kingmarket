@@ -86,6 +86,6 @@ foreach ($stmt->fetchAll() as $ligne) {
         </form>
     </main>
 
-    <script src="../assets/js/livraison.js"></script>
+    <script src="../assets/js/livraison.js?v=2"></script>
 </body>
 </html>
