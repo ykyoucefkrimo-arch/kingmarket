@@ -721,7 +721,8 @@ input, select, textarea { font-family: inherit; font-size: 1rem; }
 @media (max-width: 560px) {
     .section { padding: 60px 0; }
     .hero { padding: 44px 0 60px; }
-    .header-cta span { display: none; }
+    .logo { font-size: 1rem; }
+    .header-cta { font-size: 0.78rem; padding: 9px 14px; }
     .countdown-unit { min-width: 64px; padding: 10px 12px; }
     .offer-box { padding: 34px 22px; }
 }
