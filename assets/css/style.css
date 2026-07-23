@@ -582,7 +582,7 @@ input, select, textarea { font-family: inherit; font-size: 1rem; }
     cursor: pointer;
     transition: border-color 0.15s ease, background 0.15s ease;
 }
-.qty-option input { position: absolute; opacity: 0; pointer-events: none; }
+.qty-option input { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
 .qty-option .qty-num { font-weight: 800; font-size: 1.2rem; display: block; }
 .qty-option .qty-discount {
     display: block;
