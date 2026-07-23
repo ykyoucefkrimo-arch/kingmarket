@@ -16,10 +16,21 @@
  */
 
 // ── Identifiants de connexion (À MODIFIER) ──────────────────────────────
-define('DB_HOST', 'localhost');                 // Reste "localhost" sur Hostinger
-define('DB_NAME', 'u123456789_kingmarket');      // Nom de la base (préfixé u123456789_ chez Hostinger)
-define('DB_USER', 'u123456789_admin');           // Utilisateur MySQL
-define('DB_PASS', 'CHANGEZ_MOI_MOT_DE_PASSE');   // Mot de passe MySQL
+// Détection auto de l'environnement : évite de devoir changer ces valeurs
+// à chaque va-et-vient entre les tests en local (WAMP) et la mise en ligne.
+$estLocal = in_array($_SERVER['SERVER_NAME'] ?? '', ['localhost', '127.0.0.1'], true);
+
+if ($estLocal) {
+    define('DB_HOST', 'localhost');
+    define('DB_NAME', 'kingmarket_test');
+    define('DB_USER', 'root');
+    define('DB_PASS', '');
+} else {
+    define('DB_HOST', 'localhost');                 // Reste "localhost" sur Hostinger
+    define('DB_NAME', 'u123456789_kingmarket');      // Nom de la base (préfixé u123456789_ chez Hostinger)
+    define('DB_USER', 'u123456789_admin');           // Utilisateur MySQL
+    define('DB_PASS', 'CHANGEZ_MOI_MOT_DE_PASSE');   // Mot de passe MySQL
+}
 // ── Fuseau horaire (dates de commande cohérentes) ───────────────────────
 date_default_timezone_set('Africa/Algiers');
 
