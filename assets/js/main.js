@@ -96,6 +96,8 @@
         const produitEl    = document.getElementById('recap-produit');
         const livraisonEl  = document.getElementById('recap-livraison');
         const totalEl      = document.getElementById('recap-total');
+        const livraisonFormEl = document.getElementById('recap-livraison-form');
+        const totalFormEl     = document.getElementById('recap-total-form');
         if (!totalEl) return;
 
         let remise = 0;
@@ -117,12 +119,17 @@
             // d'API), on retombe sur 0 plutôt que d'afficher "[object Object]".
             const brut = valeur && typeof valeur === 'object' ? valeur[typeLivraison] : valeur;
             frais = typeof brut === 'number' && !isNaN(brut) ? brut : 0;
-            if (livraisonEl) livraisonEl.textContent = frais > 0 ? formaterPrix(frais) : 'مجانية';
-        } else if (livraisonEl) {
-            livraisonEl.textContent = wilayaChoisie ? 'مجانية' : 'اختر ولايتك';
+            const texteLivraison = frais > 0 ? formaterPrix(frais) : 'مجانية';
+            if (livraisonEl) livraisonEl.textContent = texteLivraison;
+            if (livraisonFormEl) livraisonFormEl.textContent = texteLivraison;
+        } else {
+            const texteLivraison = wilayaChoisie ? 'مجانية' : 'اختر ولايتك';
+            if (livraisonEl) livraisonEl.textContent = texteLivraison;
+            if (livraisonFormEl) livraisonFormEl.textContent = texteLivraison;
         }
 
         totalEl.textContent = formaterPrix(sousTotal + frais);
+        if (totalFormEl) totalFormEl.textContent = formaterPrix(sousTotal + frais);
     }
     majRecapitulatif();
 

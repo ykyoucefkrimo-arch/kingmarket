@@ -510,6 +510,16 @@ input, select, textarea { font-family: inherit; font-size: 1rem; }
     font-size: 1.05rem;
 }
 
+.form-recap {
+    background: var(--couleur-fond-att, #faf6f0);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 18px;
+}
+.form-recap .order-summary-line { margin-bottom: 8px; }
+.form-recap .order-summary-total { border-top: 1px solid var(--couleur-bordure); padding-top: 12px; }
+
 .order-form-card {
     background: var(--couleur-blanc);
     border: 1px solid var(--couleur-bordure);
